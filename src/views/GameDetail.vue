@@ -1,3 +1,81 @@
+<script setup>
+import { AreaChartOutlined } from '@ant-design/icons-vue';
+import { computed, onMounted, ref } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import { useStore } from "vuex";
+import { Toast } from "../util/toast.js";
+
+const router = useRouter();
+const route = useRoute()
+const store = useStore()
+
+let gameInfo = ref({})
+const pics = ref()
+const nowPic = ref()
+//当前轮播所显示的图片
+const getImgUrl = (pic) => {
+  nowPic.value = pic;
+};
+
+//挂载时获取游戏信息
+onMounted(async () => {
+  const res = store.state.gameList
+  const game = res.filter((item) => item.id + '' === route.params.id)
+  gameInfo.value = game[0]
+  pics.value = game[0].covers
+  nowPic.value = game[0].covers[0]
+})
+//判断登录状态
+const isLogin = computed(() => {
+  return store.state.userInfo;
+})
+
+//根据评分获得不同背景色
+const scoreColor = computed(() => {
+  const s = gameInfo.value.score;
+  if (s >= 9) {
+    return 'color2';
+  } else if (s >= 7 && s < 9) {
+    return 'color1';
+  } else if (s >= 5 && s < 7) {
+    return 'color3';
+  } else {
+    return 'color4';
+  }
+})
+
+//付款时跳转
+const pay = (id) => {
+  //登录状态才能付款，否则提示未登录
+  if (isLogin.value) {
+    router.push({ name: 'order', params: { id } })
+  } else {
+    Toast("您尚未登录，请先登录", 1000)
+  }
+}
+</script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <template>
   <a-affix :offset-top="0">
     <div class="top">
@@ -79,62 +157,6 @@
   </div>
 </template>
 
-<script setup>
-import {AreaChartOutlined} from '@ant-design/icons-vue';
-import {computed, onMounted, ref} from "vue";
-import {useRoute, useRouter} from "vue-router";
-import {useStore} from "vuex";
-import {Toast} from "../util/toast.js";
-
-const router = useRouter();
-const route = useRoute()
-const store = useStore()
-
-let gameInfo = ref({})
-const pics = ref()
-const nowPic = ref()
-//当前轮播所显示的图片
-const getImgUrl = (pic) => {
-  nowPic.value = pic;
-};
-
-//挂载时获取游戏信息
-onMounted(async () => {
-  const res = store.state.gameList
-  const game = res.filter((item) => item.id + '' === route.params.id)
-  gameInfo.value = game[0]
-  pics.value = game[0].covers
-  nowPic.value = game[0].covers[0]
-})
-//判断登录状态
-const isLogin = computed(() => {
-  return store.state.userInfo;
-})
-
-//根据评分获得不同背景色
-const scoreColor = computed(() => {
-  const s = gameInfo.value.score;
-  if (s >= 9) {
-    return 'color2';
-  } else if (s >= 7 && s < 9) {
-    return 'color1';
-  } else if (s >= 5 && s < 7) {
-    return 'color3';
-  } else {
-    return 'color4';
-  }
-})
-
-//付款时跳转
-const pay = (id) => {
-  //登录状态才能付款，否则提示未登录
-  if (isLogin.value) {
-    router.push({name: 'order', params: {id}})
-  } else {
-    Toast("您尚未登录，请先登录", 1000)
-  }
-}
-</script>
 
 <style scoped>
 .top {

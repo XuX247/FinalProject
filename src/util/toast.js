@@ -1,3 +1,6 @@
+
+
+// 单行文本显示
 export function Toast(msg, duration) {
     duration = isNaN(duration) ? 2000 : duration;
     const m = document.createElement('div');
@@ -13,6 +16,9 @@ export function Toast(msg, duration) {
         }, d * 1000);
     }, duration);
 }
+
+
+//多行文本显示
 export function Toast2(msg, duration) {
     duration = isNaN(duration) ? 2000 : duration;
     const m = document.createElement('div');

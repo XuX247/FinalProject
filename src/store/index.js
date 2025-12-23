@@ -1718,12 +1718,12 @@ export const store = createStore({
                 password: '123',
                 name: '章家诚',
                 level: '地球ONLINE LV20',
-                signature: '666给你装到了',
+                signature: 'FPS游戏爱好者111',
                 avatar: '/head2.jpg',
-                fans: [2, 3, 4, 5, 6, 7],
-                atten: [2, 3, 4, 5, 6, 7],
-                praise: 0,
-                browse: 9,
+                fans: [2, 3, 4, 5, 6, 7], //数组里结合后端后可以存储粉丝的ID账号
+                atten: [2, 3, 4, 5, 6, 7], //数组里结合后端后可以存储关注的用户ID账号
+                praise: 99999, //点赞数
+                browse: 9,  //浏览数
                 ownGames: [
                     {
                         id: 4,
@@ -1789,8 +1789,8 @@ export const store = createStore({
                 account: '123456',
                 password: '123456',
                 name: '王戒',
-                level: '16',
-                signature: '这是用户2的个性签名',
+                level: '20',
+                signature: '喜欢打牌',
                 avatar: '/head.jpg',
                 fans: [2, 3],
                 atten: [2, 3, 4, 5],
@@ -1798,14 +1798,14 @@ export const store = createStore({
                 browse: 10,
                 ownGames: [
                     {
-                        id: 2,
+                        id: 23,
                         totalTime: 66,
                         recentTime: 3,
                         myAchievements: 10,
                         other: {}
                     },
                     {
-                        id: 6,
+                        id: 32,
                         totalTime: 79,
                         recentTime: 3.5,
                         myAchievements: 10,
@@ -1815,11 +1815,11 @@ export const store = createStore({
             },
             {
                 id: 4,
-                account: '1234567',
-                password: '1234567',
+                account: '123467',
+                password: '123467',
                 name: '蒋宇航',
-                level: '16',
-                signature: '这是用户2的个性签名',
+                level: '80',
+                signature: '喜欢玩BF1',
                 avatar: '/head.jpg',
                 fans: [2, 3],
                 atten: [2, 3, 4, 5],
@@ -1827,14 +1827,14 @@ export const store = createStore({
                 browse: 10,
                 ownGames: [
                     {
-                        id: 2,
+                        id: 3,
                         totalTime: 66,
                         recentTime: 3,
                         myAchievements: 10,
                         other: {}
                     },
                     {
-                        id: 6,
+                        id: 10,
                         totalTime: 79,
                         recentTime: 3.5,
                         myAchievements: 10,

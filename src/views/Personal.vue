@@ -1,18 +1,38 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue'
-import { useStore } from 'vuex'
-import { useRouter } from 'vue-router'
+import Top from '/src/components/TopNav.vue'
+import { computed, onMounted, ref } from "vue";
+import { useStore } from "vuex";
+import { useRouter } from "vue-router";
 
 const store = useStore()
 const router = useRouter()
 
-// 登录否？
+//登录状态
 const isLogin = computed(() => {
-  return !!store.state.userInfo
+  return store.state.userInfo;
 })
 
-// 获取用户信息，没登陆的话显示空拍头像
-const user = computed(() => {
+
+
+
+// 顶部导航栏
+const topNav = [
+  {
+    text: '数据',
+    path: '#'
+  },
+  {
+    text: '动态',
+    path: '#'
+  }
+]
+
+//拥有游戏列表
+const myGame = ref([])
+
+//当前用户信息
+const userInfo = computed(() => {
+  //已登录获得信息，否则提示用户登录
   if (isLogin.value) {
     return store.state.userInfo
   } else {
@@ -20,176 +40,145 @@ const user = computed(() => {
       name: '点击登录',
       signature: '登录解锁更多精彩内容~',
       avatar: '/head2.png',
-      level: 0,
-      atten: [],
-      fans: [],
-      praise: 0,
-      browse: 0
     }
   }
 })
 
-// 游戏列表
-const myGames = ref([])
-
-// 按最近游玩时间降序排序
-const sortedGames = computed(() => {
-  return [...myGames.value].sort((a, b) => b.recentTime - a.recentTime) //"..."是复制数组用的,sort来排序
-})
+//降序排序条件
+function compare(property) {
+  return function (a, b) {
+    // 简单的降序比较
+    if (a[property] > b[property]) {
+      return -1;  
+    } else if (a[property] < b[property]) {
+      return 1;   
+    } else {
+      return 0;   
+    }
+  }
+}
 
 onMounted(() => {
-  if (!isLogin.value) return;
-
-  const userInfo = store.state.userInfo;
-  const gameList = store.state.gameList;
-  const ownGames = userInfo.ownGames || []; // 防止 undefined
-
-  // 用来存最终结果：每款游戏都带上完整信息
-  const gamesWithOther = [];
-
-  // 遍历“我拥有的游戏”
-  for (let i = 0; i < ownGames.length; i++) {
-    const myGame = ownGames[i]; // 比如 { id: 101, totalTime: 5, ... }
-
-    let fullGameInfo = null;
-
-    // 在所有游戏中找匹配的 id
-    for (let j = 0; j < gameList.length; j++) {
-      if (gameList[j].id === myGame.id) {
-        fullGameInfo = gameList[j]; // 找到了！
-        break; // 找到就不用继续找了
-      }
+  //判断是否在已登录状态
+  if (isLogin.value) {
+    const user = store.state.userInfo
+    const games = store.state.gameList;
+    //过滤并拼接数据
+    for (const ownGame of user.ownGames) {
+      ownGame.other = games.filter((item) => item.id === ownGame.id)[0]
     }
-
-    // 如果没找到，就用默认占位数据
-    if (!fullGameInfo) {
-      fullGameInfo = {
-        name: '未知游戏',
-        covers: ['/placeholder.png'],
-        achievements: 0,
-        avgTime: 10
-      };
-    }
-
-    // 把“我的数据”和“游戏详情”拼在一起
-    const mergedGame = {
-      id: myGame.id,
-      totalTime: myGame.totalTime,
-      recentTime: myGame.recentTime,
-      myAchievements: myGame.myAchievements,
-      other: fullGameInfo
-    };
-
-    gamesWithOther.push(mergedGame);
+    //按照recentTime字段排序并得出最终结果
+    myGame.value = user.ownGames.sort(compare('recentTime'))
   }
+})
 
-  // 赋值给响应式变量，页面就能显示了
-  myGames.value = gamesWithOther;
-});
-
-// 跳转登录界面
-function goLogin() {
-  if (!isLogin.value) {
-    router.push('/login')
+//根据游玩时常，进度条色彩不同
+const getColor = (s) => {
+  if (s >= 90) {
+    return '#ff8e1e';
+  } else if (s >= 70 && s < 90) {
+    return '#EE00BE';
+  } else if (s >= 50 && s < 70) {
+    return '#2b80fd';
+  } else {
+    return '#63f142';
   }
 }
 
-// 游戏详情
-function goDetail(id) {
-  router.push({ name: 'detail', params: { id } })
+
+//去登录
+const goLogin = () => {
+  //如果已经登录，则直接return，不跳转
+  if (isLogin.value) {
+    return;
+  }
+  router.push('/login')
 }
 
-//百分比
-function progressPercent(game) {
-  if (!game.other.avgTime || game.other.avgTime <= 0) return 0
-  const p = (game.totalTime / game.other.avgTime) * 100
-  return Math.min(100, Math.round(p))
-}
 
-// 进度条颜色
-function getProgressColor(game) {
-  const p = progressPercent(game)
-  if (p >= 90) return '#ff8e1e'
-  if (p >= 70) return '#EE00BE'
-  if (p >= 50) return '#2b80fd'
-  return '#63f142'
+
+const gameDetail = (id) => {
+  router.push({ name: 'detail', params: { id: id } })
 }
 </script>
 
 
-
 <template>
-  <!-- 顶部の导航-->
-  <div class="top-nav">
-    <div>数据</div>
-    <div>动态</div>
-  </div>
-
-  <!-- 用户头部 -->
-  <div class="head" @click="goLogin">
-    <img :src="user.avatar" class="avatar" />
-    <div class="user-info">
-      <div>
-        <span class="name">{{ user.name }}</span>
-        <span v-if="isLogin" class="level">Lv.{{ user.level }}</span>
-      </div>
-      <span class="signature">{{ user.signature }}</span>
-    </div>
-  </div>
-
-
-  <div v-if="isLogin" class="stats">
-    <div class="stat-item">
-      <div class="num">{{ user.atten.length }}</div>
-      <div class="label">关注</div>
-    </div>
-    <div class="stat-item">
-      <div class=" num">{{ user.fans.length }}</div>
-      <div class="label">粉丝</div>
-    </div>
-    <div class="stat-item">
-      <div class="num">{{ user.praise }}</div>
-      <div class="label">获赞</div>
-    </div>
-    <div class="stat-item">
-      <div class="num">{{ user.browse }}</div>
-      <div class="label">历史浏览</div>
-    </div>
-  </div>
-
-  <!-- 我的游戏 -->
-  <div v-if="isLogin" class="games-section">
-    <div class="tabs">
-      <div class="tab">关注游戏</div>
-      <div class="tab active">拥有游戏</div>
-      <div class="tab">完美通关</div>
-      <div class="tab">我的评分</div>
-    </div>
-
-    <div class="search-bar">
-      <input type="text" placeholder="搜索" disabled />
-      <span>总时长</span>
-      <span>两周时长</span>
-      <span>成就</span>
-    </div>
-
-    <div class="game-list">
-      <div v-for="game in sortedGames" :key="game.id" class="game-item" @click="goDetail(game.id)">
-        <img :src="game.other.covers[0]" class="game-cover" />
-        <div class="game-main">
-          <div class="game-name">{{ game.other.name }}</div>
-          <div class="game-time">
-            <span>{{ game.totalTime }}h</span>
-            <span class="recent">{{ game.recentTime }}h</span>
-          </div>
-          <!-- 自制进度条 -->
-          <div class="progress-bg">
-            <div class="progress-fill"
-              :style="{ width: progressPercent(game) + '%', backgroundColor: getProgressColor(game) }"></div>
-          </div>
+  <div>
+    <a-affix :offset-top="0">
+      <Top :nav="topNav"></Top>
+    </a-affix>
+    <div class="user-head" @click="goLogin">
+      <img :src="userInfo.avatar" alt="" style="background-color: #e1e1e1">
+      <div class="user-info">
+        <div>
+          <span class="user-name">{{ userInfo.name }}</span>
+          <span class="level" v-show="isLogin">Lv.{{ userInfo.level }}</span>
         </div>
-        <div class="achievements">
-          {{ game.myAchievements }} / {{ game.other.achievements }}
+        <span style="color: #777777;letter-spacing: 2px">{{ userInfo.signature }}</span>
+      </div>
+    </div>
+    <div class="other-info" v-if="isLogin">
+      <div class="one">
+        <span style="font-size: 25px;font-weight: 600">{{ userInfo.atten.length }}</span>
+        <span style="color: #777">关注</span>
+      </div>
+      <div class="one">
+        <span style="font-size: 25px;font-weight: 600">{{ userInfo.fans.length }}</span>
+        <span style="color: #777">粉丝</span>
+      </div>
+      <div class="one">
+        <span style="font-size: 25px;font-weight: 600">{{ userInfo.praise }}</span>
+        <span style="color: #777">获赞</span>
+      </div>
+      <div class="one">
+        <span style="font-size: 25px;font-weight: 600">{{ userInfo.browse }}</span>
+        <span style="color: #777">历史浏览</span>
+      </div>
+    </div>
+
+    <div class="user-game" v-if="isLogin">
+      <div class="nav">
+        <ul>
+          <li>关注游戏</li>
+          <li class="active">拥有游戏</li>
+          <li>完美通关</li>
+          <li>我的评分</li>
+        </ul>
+      </div>
+      <!-- 小导航栏 -->
+      <div class="explain">
+        <input type="text" placeholder="搜索">
+        <span style="width: 100px">总时长</span>
+        <span>两周时长</span>
+        <span>成就</span>
+      </div>
+
+
+      <!-- 现在有的游戏列表从Mygam里面拿出来 -->
+      <div class="game-list">
+        <div class="one-game" v-for="game in myGame" :key="game.id" @click="gameDetail(game.id)">
+          <img :src="game.other.covers[0]" alt="">
+          <div class="other">
+            <div class="center">
+              <span style="font-size: 16px;font-weight: 600">{{ game.other.name }}</span>
+              <span class="game-time">
+                  <span style="font-weight: 600">{{ game.totalTime }}h</span>
+                  <span style="color: #aaa">{{ game.recentTime }}h</span>
+                </span>
+
+                <!-- Ant Design Vue 的进度条组件 -->
+              <a-progress
+                  :percent="Math.round(game.totalTime/game.other.avgTime*100)"
+                  size="small" :show-info="false"
+                  style="line-height: 3px"
+                  :stroke-color="getColor(Math.round(game.totalTime/game.other.avgTime*100))"
+              />
+            </div>
+            <div class="right">
+              {{ game.myAchievements }} / {{ game.other.achievements }}
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -199,198 +188,149 @@ function getProgressColor(game) {
 
 
 <style scoped>
-.top-nav {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 40px;
-  background: white;
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  font-size: 14px;
-  color: #7a7a7a;
-  border-bottom: 1px solid #eee;
-  z-index: 100;
-}
-
-.head {
-  display: flex;
-  align-items: center;
-  padding: 10px;
-  margin-top: 40px;
-  cursor: pointer;
-}
-
-.avatar {
-  width: 80px;
+.user-head {
   height: 80px;
+  margin: 10px 10px 0 10px;
+  display: flex;
+}
+
+.user-head img {
+  height: 80px;
+  width: 80px;
   border-radius: 50%;
-  background: #e1e1e1;
-  object-fit: cover;
 }
 
-.user-info {
-  margin-left: 12px;
+.user-head .user-info {
+  padding: 9px 10px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
 }
 
-.name {
+.user-head .user-info .user-name {
   font-size: 20px;
-  font-weight: bold;
+  font-weight: 700;
 }
 
-.level {
-  background: black;
+.user-head .user-info .level {
+  background-color: black;
   color: white;
-  font-size: 12px;
+  margin-left: 5px;
   padding: 0 5px;
+  font-size: 12px;
   border-radius: 3px;
-  margin-left: 6px;
 }
 
-.signature {
-  color: #777;
-  letter-spacing: 2px;
-  font-size: 14px;
-}
-
-.stats {
-  display: flex;
-  padding: 10px;
-  background: white;
+.other-info {
+  height: 60px;
   margin: 10px;
-  border-radius: 4px;
+  display: flex;
 }
 
-.stat-item {
-  flex: 1;
+.other-info .one {
   display: flex;
   flex-direction: column;
-  align-items: center;
   justify-content: space-between;
+  align-items: center;
+  width: 25%;
 }
 
-.num {
-  font-size: 22px;
-  font-weight: bold;
-}
-
-.label {
-  color: #777;
-  font-size: 14px;
-}
-
-.games-section {
+.user-game .nav {
   margin: 0 10px;
 }
 
-.tabs {
+.user-game .nav ul {
   display: flex;
-  background: #f8f8f8;
-  border-radius: 3px;
-  height: 37px;
+  justify-content: space-between;
   align-items: center;
-  font-size: 15px;
+  background-color: #f8f8f8;
+  height: 37px;
+  border-radius: 3px;
   color: #7a7a7a;
+  font-weight: 550;
+  font-size: 15px;
 }
 
-.tab {
-  flex: 1;
+.user-game .nav ul li {
+  width: 25%;
   text-align: center;
-  padding: 4px 0;
+  cursor: pointer;
 }
 
-.tab.active {
-  background: white;
+.user-game .nav ul li.active {
+  background-color: white;
+  padding: 4px 0;
   color: black;
   border-radius: 3px;
 }
 
-.search-bar {
+.user-game .explain {
+  padding: 0 10px;
   display: flex;
-  align-items: center;
-  padding: 8px 0;
-  font-size: 14px;
-  color: #777;
+  justify-content: left;
+  align-content: center;
 }
 
-.search-bar input {
+.user-game .explain input {
+  padding-left: 3px;
   width: 100px;
-  padding: 4px;
   border: 1px solid #e0e0e0;
   border-radius: 3px;
-  font-size: 14px;
+  outline: none;
 }
 
-.search-bar span {
+.user-game .explain input::placeholder {
+  color: #d3d3d3;
+}
+
+.user-game .explain span {
   margin-left: 20px;
 }
 
 .game-list {
-  margin-top: 10px;
+  margin: 0 10px;
 }
 
-.game-item {
+.game-list .one-game {
   display: flex;
+  justify-content: space-between;
   align-items: center;
   padding: 10px 0;
   border-bottom: 1px solid #e0e0e0;
-  cursor: pointer;
 }
 
-.game-cover {
-  width: 80px;
-  height: 80px;
+.game-list .one-game img {
+  width: 30%;
+  /*height: 70px;*/
   object-fit: cover;
   border-radius: 4px;
-  margin-right: 12px;
 }
 
-.game-main {
-  flex: 1;
+.game-list .one-game .other {
+  width: 68%;
+  height: 70px;
+  /*border-bottom: 1px solid #e0e0e0;*/
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.game-list .one-game .other .center {
+  width: 70%;
+  height: 100%;
+  padding: 0 0 5px 0;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  height: 80px;
+  justify-content: space-around;
 }
 
-.game-name {
-  font-size: 16px;
-  font-weight: bold;
-}
-
-.game-time {
+.game-list .one-game .other .center .game-time {
   display: flex;
   justify-content: space-between;
-  font-size: 14px;
-  color: #333;
 }
 
-.recent {
-  color: #aaa;
-}
-
-.progress-bg {
-  width: 100%;
-  height: 6px;
-  background: #eee;
-  border-radius: 3px;
-  overflow: hidden;
-}
-
-.progress-fill {
-  height: 100%;
-  transition: width 0.3s;
-}
-
-.achievements {
+.game-list .one-game .other .right {
   font-size: 16px;
   font-weight: 550;
-  min-width: 80px;
-  text-align: right;
 }
 </style>

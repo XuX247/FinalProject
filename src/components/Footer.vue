@@ -11,9 +11,6 @@ const path = computed(() => {
 </script>
 
 
-
-
-
 <template>
   <div class="footer">
     <router-link to="/index" class="item" :class="path==='/index'||path==='/'?'active':''">

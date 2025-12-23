@@ -1,31 +1,8 @@
-<template>
-  <div class="top-nav">
-    <div class="left">
-      <span v-for="(n,index) in props.nav" :class="index===0?'big':''" :key="index">{{ n.text }}</span>
-    </div>
-    <div class="right">
-      <span class="iconfont icon-tuichu" v-show="isUser && isLogin" @click="modal=true"></span>
-      <span class="iconfont icon-sousuo" v-show="!isUser"></span>
-      <span class="iconfont icon-youjian"></span>
-    </div>
-  </div>
-
-  <a-modal v-model:visible="modal" :footer="null" :closable="false" centered width="80%" style="border-radius: 5px">
-    <div class="my-modal">
-      <p>确认登出</p>
-      <div class="modal-btn">
-        <span class="btn1" @click="logout">确定</span>
-        <span class="btn2" @click="modal=false">取消</span>
-      </div>
-    </div>
-  </a-modal>
-</template>
-
 <script setup>
-import {useRoute, useRouter} from "vue-router";
-import {computed, ref} from "vue";
-import {useStore} from "vuex";
-import {Toast} from "../util/toast.js";
+import { useRoute, useRouter } from "vue-router";
+import { computed, ref } from "vue";
+import { useStore } from "vuex";
+import { Toast } from "../util/toast.js";
 
 const router = useRouter()
 const route = useRoute()
@@ -54,6 +31,36 @@ const logout = () => {
 }
 </script>
 
+
+
+<template>
+  <!-- 个人页导航栏 -->
+  <div class="top-nav">
+    <div class="left">
+      <span v-for="(item, index) in props.nav" :class="index==0?'big':''" :key="index">
+        {{ item.text }}
+      </span>
+    </div>
+    <div class="right">
+      <span class="iconfont icon-tuichu" v-show="isUser && isLogin" @click="modal=true"></span>
+      <span class="iconfont icon-sousuo" v-show="!isUser"></span>
+      <span class="iconfont icon-youjian"></span>
+    </div>
+  </div>
+  <!-- 登出对话框，使用ANT Design Vue -->
+  <a-modal v-model:visible="modal" :footer="null" :closable="false" centered width="80%" style="border-radius: 5px">
+    <div class="my-modal">
+      <p>确认登出</p>
+      <div class="modal-btn">
+        <span class="btn1" @click="logout">确定</span>
+        <span class="btn2" @click="modal=false">取消</span>
+      </div>
+    </div>
+  </a-modal>
+</template>
+
+
+
 <style scoped>
 .top-nav {
   height: 50px;
@@ -70,6 +77,9 @@ const logout = () => {
   font-size: 16px;
 }
 
+
+
+/* 大号字体 */
 .top-nav .big {
   font-size: 19px;
   font-weight: 550;

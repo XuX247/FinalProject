@@ -1,3 +1,103 @@
+<script setup>
+import { AreaChartOutlined } from '@ant-design/icons-vue'; //评价栏那边的折线图表从这里映入
+import Top from '/src/components/TopNav.vue'
+import { useRouter } from "vue-router";
+import { computed } from "vue";
+import { useStore } from "vuex";
+
+const router = useRouter()
+const store = useStore()
+//顶部导航信息
+const topNav = [{text: '推荐',path: '#'},{text: '榜单',path: '#'}]
+
+//双列数据
+const gameLists = computed(() => {
+  const res = store.state.gameList//从index.js游戏列表数据
+  const arr = [{ type: '为您推荐', games: [] }, { type: 'Steam促销', games: [] }]
+  const isLogin = store.state.userInfo;
+  //推荐游戏数据筛选：根据登录状态，推荐的数据筛选条件不同：登录后会排除已拥有的游戏，不再推荐
+  if (isLogin) {
+    arr[0].games = res.filter(item => item.recommend && isLogin.ownGames.every(myGame => myGame.id !== item.id)).slice(0, 6)
+  } else {
+    arr[0].games = res.filter(item => item.recommend).slice(0, 6)
+  }
+  //Steam促销数据筛选：筛选现价小于原价且不为免费游戏，之后对结果进行促销力度的排序
+  arr[1].games = res.filter(item => item.nowPrice < item.originalPrice && item.nowPrice !== 0).sort(compare2('originalPrice', 'nowPrice')).slice(0, 6)
+  return arr;
+})
+
+//单列数据
+const rankingList = computed(() => {
+  const res = store.state.gameList
+  const rankingArr = [{ type: '销量榜', games: [] }]
+  //对游戏销量进行排序
+  rankingArr[0].games = res.sort(compare('salesVolume')).slice(0, 6)
+  return rankingArr
+})
+
+//根据评分获得不同背景色
+const getColor = (score) => {
+  if (score < 7.0) {
+    return '#4B90F9';
+  } else if (score > 7.0 && score < 9.0) {
+    return '#EE00BE';
+  } else {
+    return '#FF9900';
+  }
+}
+
+//更多游戏
+const more = id => {
+  router.push({ name: 'detail', params: { id: id } })
+}
+
+//排序条件
+function compare(property) {
+  return function (a, b) {
+    const value1 = a[property];
+    const value2 = b[property];
+    return value1 - value2;
+  }
+}
+
+function compare2(p1, p2) {
+  return function (a, b) {
+    const value1 = (a[p1] - a[p2]) / a[p1]
+    const value2 = (b[p1] - b[p2]) / b[p1]
+    return -(value1 - value2);
+  }
+}
+
+//跳转更多页面
+const getMoreGames = (type) => {
+  let res = store.state.gameList
+  if (type === '为您推荐') {
+    const isLogin = store.state.userInfo;
+    //同样的，登录后会排除已拥有的游戏推荐
+    if (isLogin) {
+      res = res.filter((item) => item.recommend && isLogin.ownGames.every(myGame => myGame.id !== item.id)) //返回推荐且拒绝已拥有的游戏
+    } else {
+      res = res.filter((item) => item.recommend) //返回推荐游戏
+    }
+  } else if (type === 'Steam促销') {
+    res = res.filter((item) => item.nowPrice < item.originalPrice && item.nowPrice !== 0).sort(compare2('originalPrice', 'nowPrice'))
+  } else if (type === '销量榜') {
+    res = res.sort(compare('salesVolume'))
+  }
+  const g = {
+    title: type,
+    games: res,
+  }
+  store.commit('setMoreGame', g)
+  router.push('/moreGame')
+}
+</script>
+
+
+
+
+
+
 <template>
   <div>
     <a-affix :offset-top="0">
@@ -45,10 +145,12 @@
       <!-- 大标题 -->
       <div class="title">
         <span>{{ list.type }}</span>
+        <!-- 跳转更多页面 -->
         <div class="more" @click="getMoreGames(list.type)">
           <span>更多</span>
           <span class="iconfont icon-arrow-right"></span>
         </div>
+
       </div>
       <!-- 列表内容 -->
       <div class="rankings" v-for="(game,index) in list.games" :key="index" @click="more(game.id)">
@@ -84,109 +186,7 @@
 
 </template>
 
-<script setup>
-import {AreaChartOutlined} from '@ant-design/icons-vue';
-import Top from '/src/components/TopNav.vue'
-import {useRouter} from "vue-router";
-import {computed} from "vue";
-import {useStore} from "vuex";
 
-const router = useRouter()
-const store = useStore()
-//顶部导航信息
-const topNav = [
-  {
-    text: '推荐',
-    path: '#'
-  },
-  {
-    text: '榜单',
-    path: '#'
-  }
-]
-
-//双列数据
-const gameLists = computed(() => {
-  const res = store.state.gameList
-  const arr = [{type: '为您推荐', games: []}, {type: 'Steam促销', games: []}]
-  const isLogin = store.state.userInfo;
-  //推荐游戏数据筛选：根据登录状态，推荐的数据筛选条件不同：登录后会排除已拥有的游戏，不再推荐
-  if (isLogin) {
-    arr[0].games = res.filter(item => item.recommend && isLogin.ownGames.every(myGame => myGame.id !== item.id)).slice(0, 6)
-  } else {
-    arr[0].games = res.filter(item => item.recommend).slice(0, 6)
-  }
-  //Steam促销数据筛选：筛选现价小于原价且不为免费游戏，之后对结果进行促销力度的排序
-  arr[1].games = res.filter(item => item.nowPrice < item.originalPrice && item.nowPrice !== 0).sort(compare2('originalPrice', 'nowPrice')).slice(0, 6)
-  return arr;
-})
-
-//单列数据
-const rankingList = computed(() => {
-  const res = store.state.gameList
-  const rankingArr = [{type: '销量榜', games: []}]
-  //对游戏销量进行排序
-  rankingArr[0].games = res.sort(compare('salesVolume')).slice(0, 6)
-  return rankingArr
-})
-
-//根据评分获得不同背景色
-const getColor = (score) => {
-  if (score < 7.0) {
-    return '#4B90F9';
-  } else if (score > 7.0 && score < 9.0) {
-    return '#EE00BE';
-  } else {
-    return '#FF9900';
-  }
-}
-
-//更多游戏
-const more = id => {
-  router.push({name: 'detail', params: {id: id}})
-}
-
-//排序条件
-function compare(property) {
-  return function (a, b) {
-    const value1 = a[property];
-    const value2 = b[property];
-    return value1 - value2;
-  }
-}
-
-function compare2(p1, p2) {
-  return function (a, b) {
-    const value1 = (a[p1] - a[p2]) / a[p1]
-    const value2 = (b[p1] - b[p2]) / b[p1]
-    return -(value1 - value2);
-  }
-}
-
-//跳转更多页面
-const getMoreGames = (type) => {
-  let res = store.state.gameList
-  if (type === '为您推荐') {
-    const isLogin = store.state.userInfo;
-    //同样的，登录后会排除已拥有的游戏推荐
-    if (isLogin) {
-      res = res.filter((item) => item.recommend && isLogin.ownGames.every(myGame => myGame.id !== item.id))
-    } else {
-      res = res.filter((item) => item.recommend)
-    }
-  } else if (type === 'Steam促销') {
-    res = res.filter((item) => item.nowPrice < item.originalPrice && item.nowPrice !== 0).sort(compare2('originalPrice', 'nowPrice'))
-  } else if (type === '销量榜') {
-    res = res.sort(compare('salesVolume'))
-  }
-  const g = {
-    title: type,
-    games: res,
-  }
-  store.commit('setMoreGame', g)
-  router.push('/moreGame')
-}
-</script>
 
 <style scoped>
 .item {

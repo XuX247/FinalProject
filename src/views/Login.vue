@@ -1,34 +1,8 @@
-<template>
-  <div class="loginPage">
-    <div>
-      <div style="margin-bottom: 30px">
-        <span class="iconfont icon-chahao" style="font-size: 30px;cursor: pointer" @click="router.go(-1)"></span>
-      </div>
-      <div class="form-item">
-        <input name="account" type="text" placeholder="输入您的帐号" v-model="user.account">
-        <input name="password" type="password" placeholder="输入您的密码" v-model="user.password">
-      </div>
-      <div class="loginBtn" :class="isBlank" @click="login">
-        登 录
-      </div>
-      <div class="tipContent">
-        <span>账号1：<span class="tips">123</span>，密码1：<span class="tips">123</span></span>
-        <span>账号2：<span class="tips">1111</span>，密码2：<span class="tips">1111</span></span>
-      </div>
-    </div>
-    <div style="position: fixed;bottom: 0;margin-bottom: 30px;">
-      <a-checkbox v-model:checked="radioVal" style="color: #8f8f8f">
-        已同意《小黑盒服务及隐私条款》
-      </a-checkbox>
-    </div>
-  </div>
-</template>
-
 <script setup>
-import {computed, ref} from "vue";
-import {useRouter} from "vue-router";
-import {useStore} from "vuex";
-import {Toast} from "../util/toast.js";
+import { computed, ref } from "vue";
+import { useRouter } from "vue-router";
+import { useStore } from "vuex";
+import { Toast } from "../util/toast.js";
 
 const router = useRouter()
 const store = useStore()
@@ -70,6 +44,39 @@ const login = () => {
   }
 }
 </script>
+
+
+
+
+
+<template>
+  <div class="loginPage">
+    <div>
+      <div style="margin-bottom: 30px">
+        <span class="iconfont icon-chahao" style="font-size: 30px;cursor: pointer" @click="router.go(-1)"></span>
+      </div>
+      <div class="form-item">
+        <input name="account" type="text" placeholder="输入您的帐号" v-model="user.account">
+        <input name="password" type="password" placeholder="输入您的密码" v-model="user.password">
+      </div>
+      <div class="loginBtn" :class="isBlank" @click="login">
+        登 录
+      </div>
+      <div class="tipContent">
+        <span>测试账号1：<span class="tips">123</span>，密码1：<span class="tips">123</span></span>
+        <span>测试账号2：<span class="tips">1234</span>，密码2：<span class="tips">1234</span></span>
+        <span>测试账号3：<span class="tips">123456</span>，密码3：<span class="tips">123456</span></span>
+        <span>测试账号4：<span class="tips">123467</span>，密码4：<span class="tips">123467</span></span>
+      </div>
+    </div>
+    <div style="position: fixed;bottom: 0;margin-bottom: 30px;">
+      <a-checkbox v-model:checked="radioVal" style="color: #8f8f8f">
+        已同意《大黑块服务及隐私条款》
+      </a-checkbox>
+    </div>
+  </div>
+</template>
+
 
 <style scoped>
 .loginPage {

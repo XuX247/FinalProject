@@ -1,3 +1,26 @@
+<script setup>
+import { useRoute, useRouter } from "vue-router";
+import { computed } from "vue";
+import { useStore } from "vuex";
+
+const router = useRouter()
+const store = useStore()
+const route = useRoute()
+
+//根据ID获得对应文章所有信息
+const articleInfo = computed(() => {
+  const articleList = store.state.articleList
+  for (let article of articleList) {
+    if (article.id + '' === route.params.id) {
+      return article;
+    }
+  }
+})
+
+</script>
+
+
+
 <template>
   <a-affix :offset-top="0">
     <div class="top">
@@ -37,7 +60,7 @@
 
   </div>
   <div class="btnDashang">
-    <span>打赏作者</span>
+    <span>为作者充个电</span>
   </div>
   <br><br><br><br><br><br>
   <div class="bottom">
@@ -63,26 +86,7 @@
   </div>
 </template>
 
-<script setup>
-import {useRoute, useRouter} from "vue-router";
-import {computed} from "vue";
-import {useStore} from "vuex";
 
-const router = useRouter()
-const store = useStore()
-const route = useRoute()
-
-//根据ID获得对应文章所有信息
-const articleInfo = computed(() => {
-  const articleList = store.state.articleList
-  for (let article of articleList) {
-    if (article.id + '' === route.params.id) {
-      return article;
-    }
-  }
-})
-
-</script>
 
 <style scoped>
 .top {

@@ -1,3 +1,13 @@
+<script setup>
+import { useRouter } from "vue-router";
+// 父子传值，父组件是Article.vue，子组件是IndexArticle.vue，用于传递文章信息
+defineProps({
+  articleInfo: Object
+})
+const router = useRouter()
+</script>
+
+
 <template>
   <div class="container">
     <div class="left">
@@ -16,14 +26,7 @@
   </div>
 </template>
 
-<script setup>
-import {useRouter} from "vue-router";
 
-defineProps({
-  articleInfo: Object
-})
-const router = useRouter()
-</script>
 
 <style scoped>
 .container {
@@ -51,7 +54,7 @@ const router = useRouter()
   font-weight: 550;
   display: -webkit-box;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 2;  /* 非标准的 CSS 属性，这里限制显示2行 */
   overflow: hidden;
   text-overflow: ellipsis;
 }
