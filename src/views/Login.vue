@@ -33,7 +33,8 @@ const login = () => {
   }
   //登录逻辑开始，根据账号密码查找用户信息
   const users = store.state.users
-  const res = users.filter((item) => item.account === user.value.account && item.password === user.value.password)
+  const res = users.filter((item) => item.account === user.value.account
+&& item.password === user.value.password)
   //找到，对userInfo赋值，登录成功，跳转
   if (res.length > 0) {
     store.commit('setUserInfo', res[0])

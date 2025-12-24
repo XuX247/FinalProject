@@ -35,6 +35,8 @@ const articleInfo = computed(() => {
       </div>
     </div>
   </a-affix>
+
+  
   <div class="content">
     <img :src="articleInfo.cover" alt="">
     <div class="title">{{ articleInfo.title }}</div>
