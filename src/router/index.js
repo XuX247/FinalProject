@@ -1,9 +1,7 @@
 import {createRouter, createWebHashHistory, createWebHistory} from 'vue-router'
 
 const routes = [
-    {
-        path: '/',
-        component: () => import('../views/Index.vue'),
+    {path: '/',component: () => import('../views/Index.vue'),
         children: [
             {
                 name: 'index',
@@ -49,7 +47,7 @@ const routes = [
         component: () => import('../views/Login.vue')
     },
     {
-        path: '/:pathMatch(.*)*',
+        path: '/:pathMatch(.*)*',//通配符防止404
         redirect: '/'
     }
 

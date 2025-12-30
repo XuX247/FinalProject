@@ -105,6 +105,7 @@ const gameDetail = (id) => {
 
 <template>
   <div>
+    <!-- 显示顶部导航栏为上面的topNav的值 -->
     <a-affix :offset-top="0">
       <Top :nav="topNav"></Top>
     </a-affix>
@@ -118,6 +119,8 @@ const gameDetail = (id) => {
         <span style="color: #777777;letter-spacing: 2px">{{ userInfo.signature }}</span>
       </div>
     </div>
+
+    <!-- 用户信息 -->
     <div class="other-info" v-if="isLogin">
       <div class="one">
         <span style="font-size: 25px;font-weight: 600">{{ userInfo.atten.length }}</span>

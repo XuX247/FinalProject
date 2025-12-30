@@ -17,14 +17,18 @@ const path = computed(() => {
       <span class="iconfont icon-xingzhuang-sanjiaoxing"></span>
       <span class="nav-name">首页</span>
     </router-link>
+
+    <!-- 社区未开发 -->
     <router-link to="#" class="item" :class="path==='/soc'?'active':''">
       <span class="iconfont icon-tuoyuanxing"></span>
       <span class="nav-name">社区</span>
     </router-link>
+
     <router-link to="/games" class="item" :class="path==='/games'?'active':''">
       <span class="iconfont icon-chahao"></span>
       <span class="nav-name">游戏库</span>
     </router-link>
+    
     <router-link to="user" class="item" :class="path==='/user'?'active':''">
       <span class="iconfont icon-checkbox"></span>
       <span class="nav-name">我</span>

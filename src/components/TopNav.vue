@@ -9,6 +9,8 @@ const route = useRoute()
 const store = useStore()
 const modal = ref(false)
 
+
+
 const props = defineProps({
   nav: Array
 })
@@ -34,7 +36,7 @@ const logout = () => {
 
 
 <template>
-  <!-- 个人页导航栏 -->
+  <!-- 导航栏动态渲染，根据props.nav的值进行渲染 -->
   <div class="top-nav">
     <div class="left">
       <span v-for="(item, index) in props.nav" :class="index==0?'big':''" :key="index">
@@ -47,7 +49,7 @@ const logout = () => {
       <span class="iconfont icon-youjian"></span>
     </div>
   </div>
-  <!-- 登出对话框，使用ANT Design Vue -->
+  <!-- 登出对话框，使用ANT Design Vue,在路由在user时出现，点击退出登录时出现 -->
   <a-modal v-model:visible="modal" :footer="null" :closable="false" centered width="80%" style="border-radius: 5px">
     <div class="my-modal">
       <p>确认登出</p>

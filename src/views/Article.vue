@@ -39,8 +39,10 @@ const goArticleDetail = (id) => {
   <a-affix :offset-top="0">
     <Top :nav="topNav"></Top>
   </a-affix>
+  
   <a-carousel class="lunbo" autoplay>
-    <img v-for="(img,index) in lbImg" :src="img" :key="index" alt="这个呐是轮播图呐，按F12查看源代码"
+    <img v-for="(img,index) in lbImg" :src="img" :key="index" 
+    alt="这个呐是轮播图呐，按F12查看源代码"
          @click="router.push('/articleDetail/'+ranNum)"/>
   </a-carousel>
   <div v-for="(article,index) in articleList" :key="index">
